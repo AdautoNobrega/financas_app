@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify
 from random import randint
 from flask_cors import CORS
+import models.models
 import requests
 
 app = Flask(__name__, static_folder = "./dist/static", template_folder = "./dist")
