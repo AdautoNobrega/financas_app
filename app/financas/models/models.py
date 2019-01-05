@@ -1,10 +1,19 @@
+import enum
 import os
 
-from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Numeric,
+from sqlalchemy import (Column, DateTime, Enum, ForeignKey, Integer, Numeric,
                         String, Table, create_engine)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash
+
+
+class Tipo(enum.Enum):
+    """Enum."""
+
+    ENTRADA = 0
+    SAIDA = 1
+
 
 class MySession():
 
@@ -80,6 +89,7 @@ class Transacao(Base):
     """docstring for Transacao"""
     __tablename__ = 'transacao'
     id = Column(Integer, primary_key=True)
+    renda_id = Column(Integer, ForeignKey('renda.id'))
 
     def __init__(self, arg):
         super(Categoria, self).__init__()
@@ -90,23 +100,29 @@ class Categoria(Base):
     """docstring for Categoria"""
     __tablename__ = 'categoria'
     id = Column(Integer, primary_key=True)
-    descricao = Column(String(30), unique=True)
+    descricao = Column(String(50), unique=True)
+    tipo = Column(Enum(Tipo))
 
     def __init__(self, arg):
         super(Categoria, self).__init__()
         self.arg = arg
-        
+
 
 class Renda(Base):
     """docstring for Renda"""
     __tablename__ = 'renda'
     id = Column(Integer, primary_key=True)
     valor = Column(Numeric(asdecimal=False))
+    descricao = Column(String(50))
     data = Column(DateTime)
+    categoria_id = Column(Integer, ForeignKey('categoria.id'))
 
     def __init__(self, arg):
         super(Renda, self).__init__()
-        self.arg = arg
+        self.valor = valor
+        self.descricao = descricao
+        self.data = data
+        self.categoria_id = categoria.id
 
 
 class Despesa(Base):
@@ -114,11 +130,16 @@ class Despesa(Base):
     __tablename__ = 'despesa'
     id = Column(Integer, primary_key=True)
     valor = Column(Numeric(asdecimal=False))
+    descricao = Column(String(50))
     data = Column(DateTime)
+    categoria_id = Column(Integer, ForeignKey('categoria.id'))
 
-    def __init__(self, arg):
+    def __init__(self, valor, descricao, data, categoria):
         super(Despesa, self).__init__()
-        self.arg = arg
+        self.valor = valor
+        self.descricao = descricao
+        self.data = data
+        self.categoria_id = categoria.id
 
 
 class Saldo(Base):
