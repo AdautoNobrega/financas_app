@@ -1,16 +1,18 @@
-from flask import Flask, render_template, jsonify
+from flask import render_template, flash, redirect, url_for, request, g, \
+    jsonify, current_app
 from random import randint
-import requests
+from app.financas.main import bp
 
-@app.route('/api/random')
+
+@bp.route('/api/random')
 def random_number():
     response = {
         'randomNumber': randint(1, 100)
     }
     return jsonify(response)
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+@bp.route('/', defaults={'path': ''})
+@bp.route('/<path:path>')
 def catch_all(path):
     if app.debug:
         return requests.get('http://localhost:8080/{}'.format(path)).text

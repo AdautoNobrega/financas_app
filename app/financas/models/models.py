@@ -24,9 +24,6 @@ class MySession():
         else:
             path = os.path.join(os.path.dirname(
                 os.path.abspath(__file__)), 'sqlite.db')
-            print('***Banco de Dados...', path)
-            if os.name != 'nt':
-                path = '/' + path
         self._engine = create_engine('sqlite:///' + path, convert_unicode=True)
         Session = sessionmaker(bind=self._engine)
         if test:
@@ -47,52 +44,35 @@ class MySession():
 Base = declarative_base()
 
 
-class SQLDBUser(Base):
-    """Base de Usuários."""
-
+class User(Base):
     __tablename__ = 'users'
+
     id = Column(Integer, primary_key=True)
-    username = Column(String(20), unique=True)
-    _password = Column(String(200))
+    name = Column(String)
+    password = Column(String)
 
-    def __init__(self, username, password):
-        """Inicializa."""
-        self.username = username
-        self._password = self.encript(password)
+    def __repr__(self):
+        return f'User {self.name}'
 
-    @classmethod
-    def encript(self, password):
-        """Recebe uma senha em texto plano, retorna uma versão encriptada."""
-        return generate_password_hash(password)
 
-    @classmethod
-    def get(cls, session, username, password=None):
-        """Testa se usuário existe, e se passado, se a senha está correta.
-
-        Returns:
-            SQLDBUser ou None
-
-        """
-        if password:
-            DBUser = session.query(SQLDBUser).filter(
-                SQLDBUser.username == username,
-                SQLDBUser._password == cls.encript(password)
-            ).first()
-        else:
-            DBUser = session.query(SQLDBUser).filter(
-                SQLDBUser.username == username,
-            ).first()
-        return DBUser
+class Conta(Base):
+    """docstring for Conta"""
+    __tablename__ = 'conta'
+    id = Column(Integer, primary_key=True)
+    descricao = Column(String(50), unique=True)
+    
+    def __init__(self, descricao):
+        self.descricao = descricao
 
 
 class Transacao(Base):
     """docstring for Transacao"""
     __tablename__ = 'transacao'
     id = Column(Integer, primary_key=True)
-    renda_id = Column(Integer, ForeignKey('renda.id'))
+    despesa_id = Column(Integer, ForeignKey('despesa.id'))
 
     def __init__(self, arg):
-        super(Categoria, self).__init__()
+        super(Transacao, self).__init__()
         self.arg = arg
 
 
@@ -140,6 +120,19 @@ class Despesa(Base):
         self.descricao = descricao
         self.data = data
         self.categoria_id = categoria.id
+
+
+class Cartao(Base):
+    """docstring for Cartao"""
+    __tablename__ = 'cartao'
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(30), unique=True)
+    limite = Column(Numeric(asdecimal=False))
+    vencimento = Column(DateTime)
+
+    def __init__(self, arg):
+        super(Cartao, self).__init__()
+        self.arg = arg
 
 
 class Saldo(Base):
