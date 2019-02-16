@@ -2,7 +2,7 @@
     <div>
         <p>Organização financeira</p>
         <p>Random number from backend: {{ randomNumber }}</p>
-        <button @click="getRandom">New random number</button>
+        <button @click="getRandom" class="btn">New random number</button>
     </div>
 </template>
 
@@ -17,16 +17,15 @@ export default {
   },
   methods: {
     getRandom () {
-    // this.randomNumber = this.getRandomInt(1, 100)
       this.randomNumber = this.getRandomFromBackend()
     },
     getRandomFromBackend () {
       const path = `http://localhost:5000/api/random`
       axios.get(path)
-        .then(response => {
-          this.randomNumber = response.data.randomNumber
-        }).catch(error => {
-          console.log(error)
+        .then(res => {
+          this.randomNumber = res.data.randomNumber
+        }).catch(err => {
+          console.log(err)
         })
     }
   }
