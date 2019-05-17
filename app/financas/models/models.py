@@ -5,17 +5,17 @@ from sqlalchemy import (Column, DateTime, Enum, ForeignKey, Integer, Numeric,
                         String, Table, create_engine)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
-from werkzeug.security import generate_password_hash
 
 
-class Tipo(enum.Enum):
+class TransactionType(enum.Enum):
     """Enum."""
 
-    ENTRADA = 0
-    SAIDA = 1
+    INCOME = 0
+    OUTGO = 1
+    TRANSFER = 2
 
 
-class MySession():
+''' class MySession():
 
     def __init__(self, base, test=False):
         """Inicializa."""
@@ -30,7 +30,7 @@ class MySession():
             self._session = Session()
         else:
             self._session = scoped_session(Session)
-            base.metadata.bind = self._engine
+            base.metadate.bind = self._engine
 
     @property
     def session(self):
@@ -40,7 +40,7 @@ class MySession():
     def engine(self):
         return self._engine
 
-
+ '''
 Base = declarative_base()
 
 
@@ -55,93 +55,83 @@ class User(Base):
         return f'User {self.name}'
 
 
-class Conta(Base):
+class Account(Base):
     """docstring for Conta"""
     __tablename__ = 'conta'
     id = Column(Integer, primary_key=True)
-    descricao = Column(String(50), unique=True)
-    
-    def __init__(self, descricao):
-        self.descricao = descricao
+    description = Column(String(50), unique=True)
+    balance = Column(Numeric(asdecimal=False))
+    credit_card_id = Column(Integer, ForeignKey(
+        "creditcard.id"))
+
+    def __init__(self, description):
+        self.description = description
 
 
-class Transacao(Base):
+class Transaction(Base):
     """docstring for Transacao"""
     __tablename__ = 'transacao'
     id = Column(Integer, primary_key=True)
-    despesa_id = Column(Integer, ForeignKey('despesa.id'))
+    outgo_id = Column(Integer, ForeignKey('outgo.id'))
 
     def __init__(self, arg):
-        super(Transacao, self).__init__()
         self.arg = arg
 
 
-class Categoria(Base):
+class Category(Base):
     """docstring for Categoria"""
-    __tablename__ = 'categoria'
+    __tablename__ = 'category'
     id = Column(Integer, primary_key=True)
-    descricao = Column(String(50), unique=True)
-    tipo = Column(Enum(Tipo))
+    description = Column(String(50), unique=True)
+    type = Column(Enum(TransactionType))
 
-    def __init__(self, arg):
-        super(Categoria, self).__init__()
-        self.arg = arg
+    def __init__(self, description, type):
+        self.description = description
+        self.type = type
 
 
-class Renda(Base):
-    """docstring for Renda"""
-    __tablename__ = 'renda'
+class Income(Base):
+    """docstring for Income"""
+    __tablename__ = 'income'
     id = Column(Integer, primary_key=True)
-    valor = Column(Numeric(asdecimal=False))
-    descricao = Column(String(50))
-    data = Column(DateTime)
-    categoria_id = Column(Integer, ForeignKey('categoria.id'))
+    value = Column(Numeric(asdecimal=False))
+    description = Column(String(50))
+    date = Column(DateTime)
+    category_id = Column(Integer, ForeignKey('category.id'))
 
-    def __init__(self, arg):
-        super(Renda, self).__init__()
-        self.valor = valor
-        self.descricao = descricao
-        self.data = data
-        self.categoria_id = categoria.id
+    def __init__(self, value, description, date, category):
+        super(Income, self).__init__()
+        self.value = value
+        self.description = description
+        self.date = date
+        self.category_id = category.id
 
 
-class Despesa(Base):
-    """docstring for Despesa"""
-    __tablename__ = 'despesa'
+class Outgo(Base):
+    """docstring for Outgo"""
+    __tablename__ = 'outgo'
     id = Column(Integer, primary_key=True)
-    valor = Column(Numeric(asdecimal=False))
-    descricao = Column(String(50))
-    data = Column(DateTime)
-    categoria_id = Column(Integer, ForeignKey('categoria.id'))
+    value = Column(Numeric(asdecimal=False))
+    description = Column(String(50))
+    date = Column(DateTime)
+    category_id = Column(Integer, ForeignKey('category.id'))
 
-    def __init__(self, valor, descricao, data, categoria):
-        super(Despesa, self).__init__()
-        self.valor = valor
-        self.descricao = descricao
-        self.data = data
-        self.categoria_id = categoria.id
+    def __init__(self, value, description, date, category):
+        super(Outgo, self).__init__()
+        self.value = value
+        self.description = description
+        self.date = date
+        self.category_id = category.id
 
 
-class Cartao(Base):
-    """docstring for Cartao"""
-    __tablename__ = 'cartao'
+class CreditCard(object):
+    __tablename__ = 'creditcard'
     id = Column(Integer, primary_key=True)
-    nome = Column(String(30), unique=True)
-    limite = Column(Numeric(asdecimal=False))
-    vencimento = Column(DateTime)
+    limit = Column(Numeric(asdecimal=False))
 
-    def __init__(self, arg):
-        super(Cartao, self).__init__()
-        self.arg = arg
+    def __init__(self, limit, purchases):
+        self.limit = limit
+        self.purchases_id = purchases.id
 
 
-class Saldo(Base):
-    """docstring for Saldo"""
-    __tablename__ = 'saldo'
-    id = Column(Integer, primary_key=True)
-    saldo = Column(Numeric(asdecimal=False))
-    data = Column(DateTime)
-
-    def __init__(self, arg):
-        super(Saldo, self).__init__()
-        self.arg = arg
+engine = create_engine('sqlite:///:memory:', echo=True)

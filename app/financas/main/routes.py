@@ -10,6 +10,7 @@ def random_number():
     }
     return jsonify(response)
 
+
 @bp.route('/', defaults={'path': ''})
 @bp.route('/<path:path>')
 def catch_all(path):
