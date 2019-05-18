@@ -1,16 +1,11 @@
 import enum
-import os
 
 import datetime
 
 from sqlalchemy import (Column, DateTime, Enum, ForeignKey, Integer, Numeric,
-                        String, Table, create_engine, select)
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, scoped_session, sessionmaker
-
-
-Base = declarative_base()
-BASEDIR = os.path.abspath(os.path.dirname(__file__))
+                        String, Table, select)
+from sqlalchemy.orm import relationship
+from . import Base
 
 
 class TransactionType(enum.Enum):
@@ -26,37 +21,6 @@ class PaymentType(enum.Enum):
     CASH = 0
     DEBIT = 1
     CREDIT = 2
-
-
-class MySession():
-    """Sessão com BD.
-    Para definir a sessão com o BD na aplicação. Para os
-    testes, passando o parâmetro test=True, um BD na memória
-    """
-
-    def __init__(self, base, test=False):
-        """Inicializa."""
-        if test:
-            path = ':memory:'
-        else:
-            path = os.path.join(basedir, 'app.db')
-        self._engine = create_engine('sqlite:///' + path, convert_unicode=True)
-        Session = sessionmaker(bind=self._engine)
-        if test:
-            self._session = Session()
-        else:
-            self._session = scoped_session(Session)
-            base.metadata.bind = self._engine
-
-    @property
-    def session(self):
-        """Session."""
-        return self._session
-
-    @property
-    def engine(self):
-        """Engine."""
-        return self._engine
 
 
 class User(Base):
