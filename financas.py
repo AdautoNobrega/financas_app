@@ -1,4 +1,4 @@
-from app.financas import create_app, db
+from app.financas import create_app
 
 app = create_app()
 

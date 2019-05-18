@@ -14,6 +14,4 @@ def random_number():
 @bp.route('/', defaults={'path': ''})
 @bp.route('/<path:path>')
 def catch_all(path):
-    if True:
-        return request.get('http://localhost:8080/{}'.format(path)).text
     return render_template("index.html")
