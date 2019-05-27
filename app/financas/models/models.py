@@ -1,10 +1,11 @@
+import datetime
 import enum
 
-import datetime
-
+from flask_login import UserMixin
 from sqlalchemy import (Column, DateTime, Enum, ForeignKey, Integer, Numeric,
                         String, Table, select)
 from sqlalchemy.orm import relationship
+
 from . import Base
 
 
@@ -23,7 +24,7 @@ class PaymentType(enum.Enum):
     CREDIT = 2
 
 
-class User(Base):
+class User(Base, UserMixin):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True)
